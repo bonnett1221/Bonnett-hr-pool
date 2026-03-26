@@ -64,6 +64,35 @@ const teams = [
   }
 ];
 
+// 🔥 calculate top 9 score
+function getTeamScore(team) {
+  const sorted = [...team.players].sort((a, b) => b.hr - a.hr);
+  const top9 = sorted.slice(0, 9);
+  return top9.reduce((sum, p) => sum + p.hr, 0);
+}
+
+// 🏆 render leaderboard
+function renderLeaderboard() {
+  const leaderboard = document.createElement("div");
+  leaderboard.innerHTML = "<h2>Leaderboard</h2>";
+
+  const ranked = [...teams]
+    .map(team => ({
+      ...team,
+      score: getTeamScore(team)
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  ranked.forEach((team, index) => {
+    const row = document.createElement("div");
+    row.innerText = `${index + 1}. ${team.name} - ${team.score} HR`;
+    leaderboard.appendChild(row);
+  });
+
+  playersDiv.appendChild(leaderboard);
+}
+
+// 👇 dropdown
 function loadDropdown() {
   teamSelect.innerHTML = "";
   teams.forEach((team, index) => {
@@ -74,18 +103,30 @@ function loadDropdown() {
   });
 }
 
+// 👇 team view + bench logic
 function renderSelectedTeam() {
   const selectedIndex = Number(teamSelect.value || 0);
   const team = teams[selectedIndex];
 
   playersDiv.innerHTML = "";
 
+  renderLeaderboard();
+
+  const sorted = [...team.players].sort((a, b) => b.hr - a.hr);
+
   const teamDiv = document.createElement("div");
   teamDiv.innerHTML = `<h2>${team.name}</h2>`;
 
-  team.players.forEach((p) => {
+  sorted.forEach((p, index) => {
     const row = document.createElement("div");
-    row.innerText = `${p.name} - ${p.hr} HR`;
+
+    if (index === 9) {
+      row.innerText = `${p.name} - ${p.hr} HR (BENCH)`;
+      row.style.opacity = "0.6";
+    } else {
+      row.innerText = `${p.name} - ${p.hr} HR`;
+    }
+
     teamDiv.appendChild(row);
   });
 
@@ -93,7 +134,7 @@ function renderSelectedTeam() {
 }
 
 async function updateHRs() {
-  alert("Next step: LIVE MLB HR sync");
+  alert("Next step: LIVE MLB sync");
 }
 
 loadDropdown();
