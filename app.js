@@ -386,7 +386,54 @@ players: [
 { name: "Josh Naylor", hr: 0 }
 ]
 }
+,
+{
+name: "Jimmy Topps"
+players: [
+{ name: "Shohei Ohtani", hr: 0 },
+{ name: "Junior Caminero", hr: 0 },
+{ name: "Yordan Alvarez", hr: 0 },
+{ name: "Ronald Acuna Jr", hr: 0 },
+{ name: "Munetaka Murakami", hr: 0 },
+{ name: "Gunnar Henderson", hr: 0 },
+{ name: "Spencer Torkelson", hr: 0 },
+{ name: "Mike Trout", hr: 0 },
+{ name: "Christian Yelich", hr: 0 },
+{ name: "Roman Anthony", hr: 0 }
+]
+},
 
+{
+name: "Kolasa's"
+players: [
+{ name: "Aaron Judge", hr: 0 },
+{ name: "Eugenio Suarez", hr: 0 },
+{ name: "Jo Adell", hr: 0 },
+{ name: "Yordan Alvarez", hr: 0 },
+{ name: "Hunter Goodman", hr: 0 },
+{ name: "Gunnar Henderson", hr: 0 },
+{ name: "Colson Montgomery", hr: 0 },
+{ name: "Pete Crow-Armstrong", hr: 0 },
+{ name: "Randy Arozarena", hr: 0 },
+{ name: "Adolis Garcia", hr: 0 }
+]
+},
+
+{
+name: "Vinny"
+players: [
+{ name: "Aaron Judge", hr: 0 },
+{ name: "Junior Caminero", hr: 0 },
+{ name: "Matt Olson", hr: 0 },
+{ name: "Bobby Witt Jr", hr: 0 },
+{ name: "Austin Riley", hr: 0 },
+{ name: "Hunter Goodman", hr: 0 },
+{ name: "Cody Bellinger", hr: 0 },
+{ name: "Kyle Stowers", hr: 0 },
+{ name: "Jackson Chourio", hr: 0 },
+{ name: "Tyler Soderstrom", hr: 0 }
+]
+}
 ];
 
 // leaderboard + scoring
