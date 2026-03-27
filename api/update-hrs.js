@@ -1,20 +1,35 @@
 export default async function handler(req, res) {
-  try {
-    const response = await fetch("https://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&season=2024");
-    const data = await response.json();
+  const players = req.body.players || [];
 
-    const players = data.stats[0].splits;
+  const results = {};
 
-    const hrMap = {};
+  for (const name of players) {
+    try {
+      const search = encodeURIComponent(name);
+      const searchRes = await fetch(
+        `https://statsapi.mlb.com/api/v1/people/search?names=${search}`
+      );
+      const searchData = await searchRes.json();
 
-    players.forEach(p => {
-      const name = p.player.fullName;
-      const hr = parseInt(p.stat.homeRuns || 0);
-      hrMap[name] = hr;
-    });
+      if (!searchData.people || searchData.people.length === 0) {
+        results[name] = 0;
+        continue;
+      }
 
-    res.status(200).json(hrMap);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch MLB data" });
+      const id = searchData.people[0].id;
+
+      const statsRes = await fetch(
+        `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&group=hitting`
+      );
+      const statsData = await statsRes.json();
+
+      const hr = statsData.stats?.[0]?.splits?.[0]?.stat?.homeRuns || 0;
+
+      results[name] = hr;
+    } catch {
+      results[name] = 0;
+    }
   }
+
+  res.status(200).json(results);
 }
