@@ -1,25 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>HR Pool</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonnett HR Pool</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Bonnett HR Pool</h1>
+        <p class="subtitle">Live MLB Home Run Pool</p>
+      </div>
+    </header>
 
-<h1>MLB HR Pool</h1>
+    <section class="hero-actions">
+      <button class="primary-btn" onclick="updateHRs()">Update All HR Totals</button>
+    </section>
 
-<button onclick="updateHRs()">Update All HR Totals</button>
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Teams</div>
+        <div class="stat-value" id="statTeams">0</div>
+      </div>
 
-<div style="margin:20px 0;">
-  <label for="teamSelect"><strong>Select Team:</strong></label><br><br>
-  <select id="teamSelect" onchange="renderSelectedTeam()" style="padding:10px; font-size:16px; border-radius:8px; width:100%; max-width:320px;">
-  </select>
-</div>
+      <div class="stat-card">
+        <div class="stat-label">Top Team Score</div>
+        <div class="stat-value" id="statTopScore">0 HR</div>
+        <div class="stat-subtext" id="statTopTeam">—</div>
+      </div>
 
-<div id="players"></div>
+      <div class="stat-card">
+        <div class="stat-label">League Home Runs</div>
+        <div class="stat-value" id="statLeagueHR">0</div>
+      </div>
+    </section>
 
-<script src="config.js"></script>
-<script src="app.js"></script>
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Leaderboard</h2>
+          <p>Tap a team below to view the full roster.</p>
+        </div>
+      </div>
+      <div id="leaderboard" class="leaderboard-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Team Viewer</h2>
+          <p>See the active 9 and current bench player.</p>
+        </div>
+      </div>
+
+      <div class="select-wrap">
+        <label for="teamSelect">Select Team</label>
+        <select id="teamSelect"></select>
+      </div>
+
+      <div id="players"></div>
+    </section>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
