@@ -409,26 +409,78 @@ const teams = [
   }
 ];
 
-function getTeamScore(team) {
-  const sorted = [...team.players].sort((a, b) => b.hr - a.hr);
-  return sorted.slice(0, 9).reduce((sum, p) => sum + p.hr, 0);
+const leaderboardDiv = document.getElementById("leaderboard");
+const statTeams = document.getElementById("statTeams");
+const statTopScore = document.getElementById("statTopScore");
+const statTopTeam = document.getElementById("statTopTeam");
+const statLeagueHR = document.getElementById("statLeagueHR");
+
+function getSortedPlayers(team) {
+  return [...team.players].sort((a, b) => b.hr - a.hr);
 }
 
-function renderLeaderboard() {
-  const leaderboard = document.createElement("div");
-  leaderboard.innerHTML = "<h2>Leaderboard</h2>";
+function getTeamScore(team) {
+  return getSortedPlayers(team)
+    .slice(0, 9)
+    .reduce((sum, p) => sum + p.hr, 0);
+}
 
-  const ranked = [...teams]
-    .map(team => ({ ...team, score: getTeamScore(team) }))
+function getRankedTeams() {
+  return [...teams]
+    .map(team => ({
+      ...team,
+      score: getTeamScore(team)
+    }))
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+}
+
+function updateTopStats() {
+  const ranked = getRankedTeams();
+  const leagueHR = teams.reduce((sum, team) => {
+    return sum + team.players.reduce((teamSum, p) => teamSum + p.hr, 0);
+  }, 0);
+
+  statTeams.textContent = teams.length;
+  statTopScore.textContent = `${ranked[0]?.score || 0} HR`;
+  statTopTeam.textContent = ranked[0]?.name || "—";
+  statLeagueHR.textContent = leagueHR;
+}
+
+function renderLeaderboard(selectedTeamName = null) {
+  leaderboardDiv.innerHTML = "";
+
+  const ranked = getRankedTeams();
 
   ranked.forEach((team, index) => {
-    const row = document.createElement("div");
-    row.innerText = `${index + 1}. ${team.name} - ${team.score} HR`;
-    leaderboard.appendChild(row);
-  });
+    const card = document.createElement("div");
+    card.className = `team-card rank-${index + 1}`;
+    if (team.name === selectedTeamName) {
+      card.classList.add("selected");
+    }
 
-  playersDiv.appendChild(leaderboard);
+    card.innerHTML = `
+      <div class="team-row">
+        <div class="rank-badge">${index + 1}</div>
+        <div>
+          <div class="team-name">${team.name}</div>
+          <div class="team-meta">10 players • top 9 counted</div>
+        </div>
+        <div class="team-score">
+          ${team.score}
+          <small>HR</small>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      const teamIndex = teams.findIndex(t => t.name === team.name);
+      teamSelect.value = String(teamIndex);
+      renderSelectedTeam();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+
+    leaderboardDiv.appendChild(card);
+  });
 }
 
 function loadDropdown() {
@@ -442,34 +494,47 @@ function loadDropdown() {
 }
 
 function renderSelectedTeam() {
-  const team = teams[Number(teamSelect.value || 0)];
+  const selectedIndex = Number(teamSelect.value || 0);
+  const team = teams[selectedIndex];
+  const sorted = getSortedPlayers(team);
 
   playersDiv.innerHTML = "";
-  renderLeaderboard();
+  updateTopStats();
+  renderLeaderboard(team.name);
 
-  const sorted = [...team.players].sort((a, b) => b.hr - a.hr);
+  const rosterCard = document.createElement("div");
+  rosterCard.className = "roster-card";
 
-  const teamDiv = document.createElement("div");
-  teamDiv.innerHTML = `<h2>${team.name}</h2>`;
+  const title = document.createElement("h2");
+  title.className = "roster-title";
+  title.textContent = team.name;
+  rosterCard.appendChild(title);
 
-  sorted.forEach((p, i) => {
+  sorted.forEach((player, index) => {
     const row = document.createElement("div");
-    row.innerText = i === 9
-      ? `${p.name} - ${p.hr} HR (BENCH)`
-      : `${p.name} - ${p.hr} HR`;
-    if (i === 9) row.style.opacity = "0.6";
-    teamDiv.appendChild(row);
+    row.className = "roster-row";
+
+    const badgeClass = index === 9 ? "badge-bench" : "badge-active";
+    const badgeText = index === 9 ? "Bench • Not Counted" : "Counted In Score";
+
+    row.innerHTML = `
+      <div class="player-name">${player.name}</div>
+      <div class="player-hr">${player.hr} HR</div>
+      <div class="player-badge ${badgeClass}">${badgeText}</div>
+    `;
+
+    rosterCard.appendChild(row);
   });
 
-  playersDiv.appendChild(teamDiv);
+  playersDiv.appendChild(rosterCard);
 }
 
 async function updateHRs() {
   alert("Updating real HR totals...");
 
-  const allPlayers = [...new Set(
-    teams.flatMap(team => team.players.map(p => p.name))
-  )];
+  const allPlayers = [
+    ...new Set(teams.flatMap(team => team.players.map(p => p.name)))
+  ];
 
   const res = await fetch("/api/update-hrs", {
     method: "POST",
@@ -481,18 +546,18 @@ async function updateHRs() {
 
   const data = await res.json();
 
-if (!data.ok) {
-  alert("Update failed: " + (data.error || "Unknown error"));
-  return;
-}
+  if (!data.ok) {
+    alert("Update failed: " + (data.error || "Unknown error"));
+    return;
+  }
 
-teams.forEach(team => {
-  team.players.forEach(p => {
-    if (data.results[p.name] !== undefined) {
-      p.hr = data.results[p.name];
-    }
+  teams.forEach(team => {
+    team.players.forEach(player => {
+      if (data.results[player.name] !== undefined) {
+        player.hr = data.results[player.name];
+      }
+    });
   });
-});
 
   renderSelectedTeam();
 }
