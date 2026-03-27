@@ -481,13 +481,18 @@ async function updateHRs() {
 
   const data = await res.json();
 
-  teams.forEach(team => {
-    team.players.forEach(p => {
-      if (data[p.name] !== undefined) {
-        p.hr = data[p.name];
-      }
-    });
+if (!data.ok) {
+  alert("Update failed: " + (data.error || "Unknown error"));
+  return;
+}
+
+teams.forEach(team => {
+  team.players.forEach(p => {
+    if (data.results[p.name] !== undefined) {
+      p.hr = data.results[p.name];
+    }
   });
+});
 
   renderSelectedTeam();
 }
