@@ -467,7 +467,18 @@ function renderSelectedTeam() {
 async function updateHRs() {
   alert("Updating real HR totals...");
 
-  const res = await fetch("/api/update-hrs");
+  const allPlayers = [...new Set(
+    teams.flatMap(team => team.players.map(p => p.name))
+  )];
+
+  const res = await fetch("/api/update-hrs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ players: allPlayers })
+  });
+
   const data = await res.json();
 
   teams.forEach(team => {
