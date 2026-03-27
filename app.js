@@ -465,12 +465,19 @@ function renderSelectedTeam() {
 }
 
 async function updateHRs() {
-  alert("Updating HR totals...");
+  alert("Updating real HR totals...");
+
+  const res = await fetch("/api/update-hrs");
+  const data = await res.json();
+
   teams.forEach(team => {
     team.players.forEach(p => {
-      p.hr = Math.floor(Math.random() * 40);
+      if (data[p.name] !== undefined) {
+        p.hr = data[p.name];
+      }
     });
   });
+
   renderSelectedTeam();
 }
 
